@@ -1,0 +1,101 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: bazm-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bazm_user
+      POSTGRES_PASSWORD: bazm_dev_password
+      POSTGRES_DB: bazm_adab
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bazm_user -d bazm_adab"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: bazm-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass bazm_redis_dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "bazm_redis_dev", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.12
+    container_name: bazm-meilisearch
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: bazm_meili_dev_key
+      MEILI_ENV: development
+      MEILI_LOG_LEVEL: INFO
+    ports:
+      - "7700:7700"
+    volumes:
+      - meili_data:/meili_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://bazm_user:bazm_dev_password@postgres:5432/bazm_adab
+      - REDIS_URL=redis://:bazm_redis_dev@redis:6379
+      - MEILI_HOST=http://meilisearch:7700
+      - MEILI_MASTER_KEY=bazm_meili_dev_key
+    depends_on:
+      - postgres
+      - redis
+      - meilisearch
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost/api
+    depends_on:
+      - api
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+
+  nginx:
+    image: nginx:alpine
+    container_name: bazm-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+      - web
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  meili_data:
