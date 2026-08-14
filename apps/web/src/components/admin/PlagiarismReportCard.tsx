@@ -53,7 +53,7 @@ export default function PlagiarismReportCard({
             <span style={{ fontWeight: 'bold', color: simhashDistance < 15 ? 'var(--color-danger)' : 'inherit' }}>{simhashDistance}/64</span>
           </div>
           <div style={{ width: '100%', background: 'var(--bg-elevated)', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
-            <div style={{ width: \`\${(1 - simhashDistance/64) * 100}%\`, background: simhashDistance < 15 ? 'var(--color-danger)' : 'var(--color-primary)', height: '100%' }} />
+            <div style={{ width: `${(1 - simhashDistance/64) * 100}%`, background: simhashDistance < 15 ? 'var(--color-danger)' : 'var(--color-primary)', height: '100%' }} />
           </div>
         </div>
 
@@ -63,7 +63,7 @@ export default function PlagiarismReportCard({
             <span style={{ fontWeight: 'bold', color: jaccardOverlap > 60 ? 'var(--color-danger)' : 'inherit' }}>{jaccardOverlap}%</span>
           </div>
           <div style={{ width: '100%', background: 'var(--bg-elevated)', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
-            <div style={{ width: \`\${jaccardOverlap}%\`, background: jaccardOverlap > 60 ? 'var(--color-danger)' : 'var(--color-primary)', height: '100%' }} />
+            <div style={{ width: `${jaccardOverlap}%`, background: jaccardOverlap > 60 ? 'var(--color-danger)' : 'var(--color-primary)', height: '100%' }} />
           </div>
         </div>
         
