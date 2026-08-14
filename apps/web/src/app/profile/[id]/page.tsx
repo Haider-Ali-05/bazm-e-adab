@@ -6,9 +6,11 @@ import PoemFeed from '@/components/PoemFeed';
 import { Settings, Edit } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ProfilePage({ params }: { params: { id: string } }) {
+export default function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const unwrappedParams = React.use(params as any);
+  const id = unwrappedParams.id;
   const [activeTab, setActiveTab] = useState<'poems' | 'saved'>('poems');
-  const isOwnProfile = params.id === 'me' || params.id === '1'; // Mock condition
+  const isOwnProfile = id === 'me' || id === '1'; // Mock condition
 
   return (
     <div style={{ maxWidth: '800px', marginInline: 'auto', paddingBlock: '2rem' }}>

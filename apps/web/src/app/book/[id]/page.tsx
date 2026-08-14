@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { ArrowLeft, Download, Settings, Trash2, Book as BookIcon } from 'lucide-react';
 // We would import BookPreview here to show the full preview in a real implementation
 
-export default function BookDetailPage({ params }: { params: { id: string } }) {
+export default function BookDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);

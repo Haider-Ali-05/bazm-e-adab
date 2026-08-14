@@ -4,10 +4,12 @@ import React from 'react';
 import CommentSection from '@/components/CommentSection';
 import UserAvatar from '@/components/UserAvatar';
 import GenreBadge from '@/components/GenreBadge';
-import { Heart, Bookmark, Share2, MoreHorizontal } from 'lucide-react';
+import { Heart, Bookmark, Share2, MoreHorizontal, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
-export default function PoemPage({ params }: { params: { id: string } }) {
+export default function PoemPage({ params }: { params: Promise<{ id: string }> }) {
+  const unwrappedParams = React.use(params as any);
+  const id = unwrappedParams.id;
   // Mock data
   const poem = {
     title: 'کبھی اے حقیقتِ منتظر',
@@ -99,7 +101,7 @@ export default function PoemPage({ params }: { params: { id: string } }) {
 
       <div className="divider"></div>
 
-      <CommentSection poemId={params.id} />
+      <CommentSection poemId={id} />
     </div>
   );
 }
