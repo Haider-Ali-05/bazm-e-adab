@@ -1,18 +1,16 @@
-import { Router } from 'express';
+import { FastifyInstance } from 'fastify';
 import { runPlagiarismEngine } from '../services/plagiarism/engine';
 
-export const poemRoutes = Router();
-
-poemRoutes.post('/', async (req, res) => {
-    const { text, authorId } = req.body;
-    
-    // Run plagiarism check
-    const report = await runPlagiarismEngine(text);
-    
-    if (report.isPlagiarized) {
-        return res.status(403).json({ error: 'Plagiarism detected', report });
-    }
-    
-    // Mock save
-    res.json({ success: true, poem: { text, authorId, simhash: report.simhash } });
-});
+export default async function (fastify: FastifyInstance) {
+    fastify.post('/', async (request, reply) => {
+        const { text, authorId } = request.body as any;
+        
+        const report = await runPlagiarismEngine(text);
+        
+        if (report.isPlagiarized) {
+            return reply.status(403).send({ error: 'Plagiarism detected', report });
+        }
+        
+        return reply.send({ success: true, poem: { text, authorId, simhash: report.simhash } });
+    });
+}

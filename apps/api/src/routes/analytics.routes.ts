@@ -1,20 +1,16 @@
-import { Router } from 'express';
+import { FastifyInstance } from 'fastify';
 import { analyticsService } from '../services/analytics.service';
+import { authenticate, requireRole } from '../middleware/auth';
 
-export const analyticsRoutes = Router();
-
-// Mock requireAdmin for express since auth.ts is fastify but server is express
-const requireAdmin = (req: any, res: any, next: any) => {
-    // Basic mock logic, replace with actual express auth later
-    next();
-};
-
-analyticsRoutes.get('/', requireAdmin, async (req, res) => {
-    try {
-        const metrics = await analyticsService.getMetrics();
-        res.json(metrics);
-    } catch (error) {
-        console.error('Error fetching analytics:', error);
-        res.status(500).json({ error: 'Failed to fetch analytics metrics' });
-    }
-});
+export default async function (fastify: FastifyInstance) {
+    const requireAdmin = requireRole('admin');
+    fastify.get('/', { preHandler: [authenticate, requireAdmin] }, async (request, reply) => {
+        try {
+            const metrics = await analyticsService.getMetrics();
+            return reply.send(metrics);
+        } catch (error) {
+            console.error('Error fetching analytics:', error);
+            return reply.status(500).send({ error: 'Failed to fetch analytics metrics' });
+        }
+    });
+}

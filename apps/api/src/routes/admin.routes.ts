@@ -1,18 +1,19 @@
-import { Router } from 'express';
+import { FastifyInstance } from 'fastify';
 import { CopyrightService } from '../services/copyright.service';
-import { analyticsRoutes } from './analytics.routes';
+import analyticsRoutes from './analytics.routes';
 
-export const adminRoutes = Router();
+export default async function (fastify: FastifyInstance) {
+    fastify.register(analyticsRoutes, { prefix: '/analytics' });
 
-adminRoutes.use('/analytics', analyticsRoutes);
+    fastify.get('/copyright-reports', async (request, reply) => {
+        const reports = await CopyrightService.getReports();
+        return reply.send(reports);
+    });
 
-adminRoutes.get('/copyright-reports', async (req, res) => {
-    const reports = await CopyrightService.getReports();
-    res.json(reports);
-});
-
-adminRoutes.post('/copyright-reports/:id/status', async (req, res) => {
-    const { status } = req.body;
-    const result = await CopyrightService.updateReportStatus(Number(req.params.id), status);
-    res.json(result);
-});
+    fastify.post('/copyright-reports/:id/status', async (request, reply) => {
+        const { status } = request.body as any;
+        const { id } = request.params as any;
+        const result = await CopyrightService.updateReportStatus(Number(id), status);
+        return reply.send(result);
+    });
+}
