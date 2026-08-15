@@ -7,8 +7,7 @@ import { Settings, Edit } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
-  const unwrappedParams = React.use(params as any);
-  const id = unwrappedParams.id;
+  const { id } = React.use(params);
   const [activeTab, setActiveTab] = useState<'poems' | 'saved'>('poems');
   const isOwnProfile = id === 'me' || id === '1'; // Mock condition
 

@@ -14,8 +14,7 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
   const [isLoading, setIsLoading] = useState(true);
 
   // Unwrapping params is necessary in Next.js 15
-  const unwrappedParams = React.use(params as any);
-  const id = unwrappedParams.id;
+  const { id } = React.use(params);
 
   useEffect(() => {
     setIsMounted(true);

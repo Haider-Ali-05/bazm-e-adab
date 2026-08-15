@@ -8,8 +8,7 @@ import { Heart, Bookmark, Share2, MoreHorizontal, MessageCircle } from 'lucide-r
 import Link from 'next/link';
 
 export default function PoemPage({ params }: { params: Promise<{ id: string }> }) {
-  const unwrappedParams = React.use(params as any);
-  const id = unwrappedParams.id;
+  const { id } = React.use(params);
   // Mock data
   const poem = {
     title: 'کبھی اے حقیقتِ منتظر',
