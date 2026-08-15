@@ -1,7 +1,7 @@
 {
   "name": "@bazm/api",
   "version": "1.0.0",
-  "main": "dist/server.js",
+  "main": "api/index.ts",
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
