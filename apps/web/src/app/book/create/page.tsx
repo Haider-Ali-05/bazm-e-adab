@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
-import { api } from '@/lib/api';
 import TemplateSelector, { TEMPLATES } from '@/components/book/TemplateSelector';
 import FontSelector, { FONTS } from '@/components/book/FontSelector';
 import CustomizationPanel, { BookSettings } from '@/components/book/CustomizationPanel';
@@ -13,7 +12,7 @@ import { Download, Save, Eye } from 'lucide-react';
 
 export default function BookEditorPage() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [isMounted, setIsMounted] = useState(false);
 
   // Editor State

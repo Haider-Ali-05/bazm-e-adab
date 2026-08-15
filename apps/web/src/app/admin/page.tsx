@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import PlagiarismReportCard from '../../components/admin/PlagiarismReportCard';
-import { Shield, AlertCircle, Inbox, Users } from 'lucide-react';
+import { Shield, AlertCircle, Inbox } from 'lucide-react';
 
 // Mock Data
 const mockReports = [

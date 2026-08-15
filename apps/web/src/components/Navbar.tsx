@@ -187,7 +187,7 @@ export default function Navbar() {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         @keyframes slideInRight {
           from { transform: translateX(100%); }
           to { transform: translateX(0); }

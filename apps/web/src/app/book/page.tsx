@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Book, Plus, Edit2, Download, Trash2, Eye } from 'lucide-react';
+import { Book, Plus, Edit2, Trash2, Eye } from 'lucide-react';
 
 interface BookItem {
   id: string;

@@ -60,7 +60,7 @@ export default function PoemCard({
   const previewText = showPreview ? lines.slice(0, 4).join('\n') : bodyPreview;
 
   return (
-    <Link href={`/poem/${id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', outline: 'none' }}>
+    <div style={{ textDecoration: 'none', color: 'inherit', display: 'block', outline: 'none', cursor: 'pointer' }}>
       <div className="card" style={{ marginBottom: '1.5rem', animation: 'pageEnter 0.4s ease-out forwards' }}>
         
         {/* Header */}
@@ -116,9 +116,11 @@ export default function PoemCard({
 
         {/* Poem Body */}
         <div style={{ marginBlock: '2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <h2 className="urdu-text" style={{ fontSize: 'var(--text-3xl)', fontWeight: 'bold', marginBottom: '1.5rem', color: 'var(--color-primary)' }}>
-            {title}
-          </h2>
+          <Link href={`/poem/${id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <h2 className="urdu-text" style={{ fontSize: 'var(--text-3xl)', fontWeight: 'bold', marginBottom: '1.5rem', color: 'var(--color-primary)' }}>
+              {title}
+            </h2>
+          </Link>
           <div className="poem-verse urdu-text" style={{ whiteSpace: 'pre-line' }}>
             {previewText}
           </div>
@@ -166,6 +168,6 @@ export default function PoemCard({
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
