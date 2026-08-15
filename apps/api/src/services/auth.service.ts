@@ -4,8 +4,8 @@ import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
-// @ts-ignore
-import { signupSchema, loginSchema } from '@bazm/shared';
+const signupSchema: any = null;
+const loginSchema: any = null;
 
 dotenv.config();
 
