@@ -6,44 +6,38 @@ import PoemCard from './PoemCard';
 import LoadingSpinner from './LoadingSpinner';
 import EmptyState from './EmptyState';
 import { Feather, AlertCircle } from 'lucide-react';
-// import { api } from '@/lib/api'; // Mocking for now
+import Link from 'next/link';
 
-// Mock data generator
-const mockPoems = Array.from({ length: 5 }).map((_, i) => ({
-  id: `poem-${i}-${Math.random()}`,
-  title: 'کبھی اے حقیقتِ منتظر',
-  bodyPreview: 'کبھی اے حقیقتِ منتظر نظر آ لباسِ مجاز میں\nکہ ہزاروں سجدے تڑپ رہے ہیں میری جبینِ نیاز میں\nطرب آشنائے خروش ہو تو نوا ہے محرمِ گوش ہو\nوہ سرود کیا کہ چھپا ہوا ہو سکوتِ پردۂ ساز میں\nتو بچا بچا کے نہ رکھ اسے تیرا آئنہ ہے وہ آئنہ\nکہ شکستہ ہو تو عزیز تر ہے نگاہِ آئنہ ساز میں',
-  author: { id: `author-${i}`, name: 'علامہ اقبال' },
-  genre: 'غزل',
-  likes: Math.floor(Math.random() * 1000) + 100,
-  comments: Math.floor(Math.random() * 100) + 10,
-  saves: Math.floor(Math.random() * 50) + 5,
-  createdAt: `${Math.floor(Math.random() * 24) + 1} hours ago`
-}));
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+
+async function fetchPoems({ pageParam = 0 }: { pageParam: number }) {
+  const res = await fetch(`${API_BASE}/poems?limit=10&offset=${pageParam * 10}`);
+  if (!res.ok) throw new Error(`Failed to fetch poems (${res.status})`);
+  const data = await res.json();
+  return {
+    poems: data.poems || [],
+    nextCursor: (data.poems?.length === 10) ? pageParam + 1 : undefined,
+  };
+}
 
 export default function PoemFeed() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const { 
-    data, 
-    fetchNextPage, 
-    hasNextPage, 
-    isFetchingNextPage, 
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     status,
-    refetch 
+    refetch
   } = useInfiniteQuery({
     queryKey: ['poems'],
-    queryFn: async ({ pageParam = 0 }) => {
-      // return api.get(`/poems?cursor=${pageParam}`);
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network latency
-      // Simulate error occasionally for testing: if (Math.random() > 0.8) throw new Error("Failed to fetch");
-      return { data: mockPoems, nextCursor: pageParam + 1 };
-    },
-    getNextPageParam: (lastPage) => lastPage.nextCursor < 4 ? lastPage.nextCursor : undefined,
+    queryFn: fetchPoems,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: 0,
   });
 
-  // Intersection Observer for Infinite Scroll
+  // Infinite scroll via IntersectionObserver
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -51,14 +45,13 @@ export default function PoemFeed() {
           fetchNextPage();
         }
       },
-      { threshold: 0.5, rootMargin: "100px" }
+      { threshold: 0.5, rootMargin: '100px' }
     );
-
     if (loadMoreRef.current) observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Loading Skeletons
+  // Loading skeletons
   if (status === 'pending') {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -82,7 +75,7 @@ export default function PoemFeed() {
     );
   }
 
-  // Error State
+  // Error state
   if (status === 'error') {
     return (
       <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
@@ -94,33 +87,48 @@ export default function PoemFeed() {
     );
   }
 
-  const allPoems = data.pages.flatMap(page => page.data);
+  const allPoems = data.pages.flatMap(page => page.poems);
 
-  // Empty State
+  // Empty state (no poems in DB yet)
   if (allPoems.length === 0) {
     return (
-      <EmptyState 
-        icon={<Feather size={48} color="var(--color-primary)" />} 
-        message="No poems found — be the first to publish!" 
-        action={<a href="/compose" className="btn btn-primary">Write a Poem</a>}
+      <EmptyState
+        icon={<Feather size={48} color="var(--color-primary)" />}
+        message="No poems yet — be the first to publish!"
+        action={<Link href="/compose" className="btn btn-primary">Write a Poem</Link>}
       />
     );
   }
 
   return (
     <div>
-      {allPoems.map((poem, i) => (
-        <PoemCard key={`${poem.id}-${i}`} {...poem} />
+      {allPoems.map((poem: any, i: number) => (
+        <PoemCard
+          key={`${poem.id}-${i}`}
+          id={poem.id}
+          title={poem.title}
+          bodyPreview={poem.body}
+          author={{
+            id: poem.author_id,
+            name: poem.display_name || poem.username || 'Unknown',
+            avatar: poem.avatar_url,
+          }}
+          genre={poem.genre || 'غزل'}
+          likes={poem.like_count || 0}
+          comments={poem.comment_count || 0}
+          saves={poem.saves || 0}
+          createdAt={poem.created_at ? new Date(poem.created_at).toLocaleDateString('ur-PK') : ''}
+        />
       ))}
-      
-      {/* Invisible element for Intersection Observer */}
+
+      {/* Infinite scroll trigger */}
       <div ref={loadMoreRef} style={{ height: '20px', marginBlock: '2rem', display: 'flex', justifyContent: 'center' }}>
         {isFetchingNextPage && <LoadingSpinner size="md" />}
       </div>
 
-      {!hasNextPage && (
+      {!hasNextPage && allPoems.length > 0 && (
         <div style={{ textAlign: 'center', marginBlock: '3rem', color: 'var(--text-muted)' }}>
-          <p>You have reached the end of the collection.</p>
+          <p>آپ نے تمام کلام پڑھ لیا۔</p>
         </div>
       )}
     </div>
